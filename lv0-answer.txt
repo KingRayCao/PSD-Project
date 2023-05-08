@@ -1,0 +1,5 @@
+1.避免复制构造，节约时间与空间。可以。
+2.方便进行资源管理，避免忘记释放或重复释放内存。使用Token*可能导致内存忘记释放或被重复释放，提高编程难度
+3.重载<<运算符，使得<<右侧可以输出Token类型对象
+4.通过throw出SyntaxError类型的错误，SyntaxError是std::runtime_error的派生类，可以被main函数中except捕获
+5.deque的首尾插入更加高效，而vector只有尾部插入比较高效，且vector要求内存连续存储，deque不要求。
