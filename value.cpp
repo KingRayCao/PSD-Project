@@ -15,7 +15,12 @@ string NumericValue::toString() {
 }
 
 string StringValue::toString() {
-    return "\"" + value + "\"";
+    string ret = "\"";
+    for (auto c : value) {
+        if (c == '\"' || c == '\\') ret += '\\';
+        ret += c;
+    }
+    return ret + "\"";
 }
 
 string NilValue::toString() {
