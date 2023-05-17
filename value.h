@@ -11,6 +11,8 @@ class Value {
 public:
     Value(){};
     virtual string toString() = 0;
+    virtual bool isSelfEvaluating();
+    virtual bool isNil();
 };
 using ValuePtr = std::shared_ptr<Value>;
 class BooleanValue : public Value {
@@ -20,6 +22,7 @@ private:
 public:
     explicit BooleanValue(const bool& v) : value{v} {};
     virtual string toString();
+    virtual bool isSelfEvaluating();
 };
 
 class NumericValue : public Value {
@@ -29,6 +32,7 @@ private:
 public:
     explicit NumericValue(const double& v) : value{v} {};
     virtual string toString();
+    virtual bool isSelfEvaluating();
 };
 
 class StringValue : public Value {
@@ -38,12 +42,14 @@ private:
 public:
     explicit StringValue(const string& v) : value{v} {};
     virtual string toString();
+    virtual bool isSelfEvaluating();
 };
 
 class NilValue : public Value {
 public:
     NilValue(){};
     virtual string toString();
+    virtual bool isNil();
 };
 
 class SymbolValue : public Value {

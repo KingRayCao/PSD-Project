@@ -3,8 +3,18 @@
 #include <iomanip>
 #include <typeinfo>
 
+bool Value::isSelfEvaluating() {
+    return false;
+}
+bool Value::isNil(){
+    return false;
+}
+
 string BooleanValue::toString() {
     return value ? "#t" : "#f";
+}
+bool BooleanValue::isSelfEvaluating() {
+    return true;
 }
 
 string NumericValue::toString() {
@@ -12,6 +22,9 @@ string NumericValue::toString() {
         return std::to_string(int(value));
     else
         return std::to_string(value);
+}
+bool NumericValue::isSelfEvaluating() {
+    return true;
 }
 
 string StringValue::toString() {
@@ -22,9 +35,15 @@ string StringValue::toString() {
     }
     return ret + "\"";
 }
+bool StringValue::isSelfEvaluating() {
+    return true;
+}
 
 string NilValue::toString() {
     return "()";
+}
+bool NilValue::isNil(){
+    return true;
 }
 
 string SymbolValue::toString() {
