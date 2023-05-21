@@ -1,56 +1,75 @@
-#include "./value.h"
+#include "value.h"
 #include <cmath>
 #include <iomanip>
 #include <typeinfo>
-
-bool Value::isSelfEvaluating() {
+#include <sstream>
+#include "error.h"
+bool Value::isSelfEvaluating() const {
     return false;
 }
-bool Value::isNil(){
+bool Value::isNil() const {
     return false;
 }
+std::optional<std::string> Value::asSymbol() const {
+    return std::nullopt;
+}
+std::deque<ValuePtr> Value::toDeque() const {
+    return {};
+}
+bool Value::isNumber() const {
+    return false;
+}
+double Value::asNumber() const {
+    return 0;
+}
 
-string BooleanValue::toString() {
+string BooleanValue::toString() const {
     return value ? "#t" : "#f";
 }
-bool BooleanValue::isSelfEvaluating() {
+bool BooleanValue::isSelfEvaluating() const {
     return true;
 }
 
-string NumericValue::toString() {
+string NumericValue::toString() const {
     if (floor(value) == ceil(value))
         return std::to_string(int(value));
     else
         return std::to_string(value);
 }
-bool NumericValue::isSelfEvaluating() {
+bool NumericValue::isSelfEvaluating() const {
     return true;
 }
-
-string StringValue::toString() {
-    string ret = "\"";
-    for (auto c : value) {
-        if (c == '\"' || c == '\\') ret += '\\';
-        ret += c;
-    }
-    return ret + "\"";
-}
-bool StringValue::isSelfEvaluating() {
+bool NumericValue::isNumber() const {
     return true;
 }
-
-string NilValue::toString() {
-    return "()";
-}
-bool NilValue::isNil(){
-    return true;
-}
-
-string SymbolValue::toString() {
+double NumericValue::asNumber() const {
     return value;
 }
 
-string PairValue::toString() {
+string StringValue::toString() const {
+    std::stringstream ss;
+    ss << std::quoted(value);
+    return ss.str();
+}
+bool StringValue::isSelfEvaluating() const {
+    return true;
+}
+
+string NilValue::toString() const {
+    return "()";
+}
+bool NilValue::isNil() const {
+    return true;
+}
+
+string SymbolValue::toString() const {
+    return value;
+}
+std::optional<std::string> SymbolValue::asSymbol() const {
+    return {value};
+}
+
+string PairValue::toString() const {
     string ret = "";
     ret += left->toString();
     if (typeid(*right) == typeid(PairValue)) {
@@ -60,6 +79,28 @@ string PairValue::toString() {
     else if (typeid(*right) != typeid(NilValue))
         ret += " . " + right->toString();
     return "(" + ret + ")";
+}
+std::deque<ValuePtr> PairValue::toDeque() const {
+    if (typeid(*right) == typeid(PairValue)) {
+        auto ret = right->toDeque();
+        ret.push_front(left);
+        return ret;
+    } 
+    else if (typeid(*right) != typeid(NilValue))
+        throw(LispError("Convert to deque failed"));
+    else
+        return std::deque<ValuePtr>{left};
+
+}
+
+std::string BuiltinProcValue::toString() const {
+    return "#<procedure>";
+}
+bool BuiltinProcValue::isSelfEvaluating() const {
+    return true;
+}
+ValuePtr BuiltinProcValue::apply(const std::deque<ValuePtr>& args) {
+    return func(args);
 }
 
 std::ostream& operator<<(std::ostream& ost, Value& v) {

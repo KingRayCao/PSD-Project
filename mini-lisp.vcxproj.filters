@@ -30,6 +30,12 @@
     <ClCompile Include="value.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="eval_env.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="builtins.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="error.h">
@@ -48,6 +54,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="value.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="eval_env.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="builtins.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

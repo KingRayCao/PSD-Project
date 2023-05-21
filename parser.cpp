@@ -8,7 +8,8 @@ Parser::Parser(std::deque<TokenPtr> tokens0) {
 }
 ValuePtr Parser::parse() {
     if (tokens.empty())
-        throw(SyntaxError("Input Syntax Error!"));
+        //TODO: Specify Error Type
+        throw(SyntaxError("Input Syntax Error"));
     auto token = std::move(tokens.front());
     tokens.pop_front();
     if (token->getType() == TokenType::NUMERIC_LITERAL) {
@@ -49,19 +50,19 @@ ValuePtr Parser::parse() {
 
 ValuePtr Parser::parseTails() {
     if (tokens.empty())
-        throw(SyntaxError("Input Syntax Error!"));
+        throw(SyntaxError("Input Syntax Error"));
     if (tokens.front()->getType() == TokenType::RIGHT_PAREN) {
         tokens.pop_front();
         return std::make_shared<NilValue>();
     }
     auto car = this->parse();
     if (tokens.empty())
-        throw(SyntaxError("Input Syntax Error!"));
+        throw(SyntaxError("Input Syntax Error"));
     if (tokens.front()->getType() == TokenType::DOT) {
         tokens.pop_front();
         auto cdr = this->parse();
         if(tokens.empty() || tokens.front()->getType() != TokenType::RIGHT_PAREN)
-            throw(SyntaxError("Input Syntax Error!"));
+            throw(SyntaxError("Input Syntax Error"));
         tokens.pop_front();
         return std::make_shared<PairValue>(car, cdr);
     }
