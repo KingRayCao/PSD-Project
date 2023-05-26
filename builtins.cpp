@@ -6,8 +6,10 @@ const std::unordered_map<std::string, BuiltinFuncType> BUILTIN_FUNCS{
     {"-", minusFunc},
     {"*", multiplyFunc},
     {"/", divideFunc}, 
-    {"print", printFunc}, {"display", displayFunc},
-    {"newline", newlineFunc}, {"exit", exitFunc}, 
+    {"print", printFunc}, 
+    {"display", displayFunc},
+    {"newline", newlineFunc}, 
+    {"exit", exitFunc}, 
     {"atom?", typeCheckFunc([](ValuePtr v) { 
         return v->isSelfEvaluating() || typeid(*v) == typeid(NilValue) ||
                 typeid(*v) == typeid(SymbolValue);
@@ -28,7 +30,7 @@ const std::unordered_map<std::string, BuiltinFuncType> BUILTIN_FUNCS{
          return typeid(*v) == typeid(StringValue);
      })},
     {"procedure?", typeCheckFunc([](ValuePtr v) {
-         return typeid(*v) == typeid(BuiltinFuncType);//?
+         return typeid(*v) == typeid(BuiltinProcValue);//?
      })},
     {"symbol?", typeCheckFunc([](ValuePtr v) {
          return typeid(*v) == typeid(SymbolValue);
@@ -40,6 +42,16 @@ const std::unordered_map<std::string, BuiltinFuncType> BUILTIN_FUNCS{
          return typeid(*v) == typeid(NumericValue) &&
                 floor(v->asNumber()) == ceil(v->asNumber());
      })},
+    {"list?", typeCheckFunc([](ValuePtr v) {
+         return typeid(*v) == typeid(PairValue) &&
+                v->isList();
+     })},
+    {"car", carFunc},
+    {"cdr", cdrFunc},
+    {"cons", consFunc},
+    {"length", lengthFunc},
+    {"list", listFunc},
+    {"append", appendFunc},
     };
 ValuePtr addFunc(const std::deque<ValuePtr>& params) {
     double result = 0;
@@ -85,12 +97,21 @@ ValuePtr divideFunc(const std::deque<ValuePtr>& params) {
         if (!i->isNumber()) {
             throw LispError("Cannot divide a non-numeric value.");
         }
+        else if (i->asNumber() == 0) {
+            throw LispError("Cannot divide by zero.");
+        }
         return std::make_shared<NumericValue>(1.0 / i->asNumber());
     } else if (params.size() == 2) {
         auto& x = params[0];
         auto& y = params[1];
         if (!x->isNumber()) {
             throw LispError("Cannot divide a non-numeric value.");
+        }
+        else if (!y->isNumber()) {
+            throw LispError("Cannot divide by a non-numeric value.");
+        }
+        else if (y->asNumber() == 0) {
+            throw LispError("Cannot divide by zero.");
         }
         return std::make_shared<NumericValue>(x->asNumber() / y->asNumber());
     } else {
@@ -135,4 +156,61 @@ BuiltinFuncType typeCheckFunc(F func) {
         else
             return std::make_shared<BooleanValue>(func(params[0]));
     };
+}
+
+ValuePtr carFunc(const std::deque<ValuePtr>& params) {
+    if (params.size() != 1)
+        throw LispError("Incorrect number of parameters.");
+    else if (typeid(*params[0]) != typeid(PairValue))
+        throw LispError("Cannot apply car to a non-pair value.");
+    else
+        return static_cast<PairValue&>(*params[0]).getCar();
+}
+ValuePtr cdrFunc(const std::deque<ValuePtr>& params) {
+    if (params.size() != 1)
+        throw LispError("Incorrect number of parameters.");
+    else if (typeid(*params[0]) != typeid(PairValue))
+        throw LispError("Cannot apply cdr to a non-pair value.");
+    else
+        return static_cast<PairValue&>(*params[0]).getCdr();
+}
+ValuePtr consFunc(const std::deque<ValuePtr>& params) {
+    if (params.size() != 2)
+        throw LispError("Incorrect number of parameters.");
+    else
+        return std::make_shared<PairValue>(params[0], params[1]);
+}
+ValuePtr lengthFunc(const std::deque<ValuePtr>& params) {
+    if (params.size() != 1) 
+        throw LispError("Incorrect number of parameters.");
+    else if (!params[0]->isList()) {
+        throw LispError("Cannot apply length to a non-list value.");
+    }
+    else {
+        return std::make_shared<NumericValue>(params[0]->toDeque().size());
+    }
+}
+ValuePtr listFunc(const std::deque<ValuePtr>& params) {
+    if (params.size() == 0) 
+        throw LispError("Incorrect number of parameters.");
+    else {
+        return std::make_shared<PairValue>(params);
+    }
+}
+
+ValuePtr appendFunc(const std::deque<ValuePtr>& params) {
+    if (params.size() == 0) 
+        return std::make_shared<NilValue>();
+    else {
+        std::deque<ValuePtr> lists{};
+        for (auto& param: params)
+            if (param->isList()) {
+                auto list = param->toDeque();
+                lists.insert(lists.end(), list.begin(), list.end());
+            } else {
+                throw LispError("Cannot apply append to a non-list value.");
+            }
+        return std::make_shared<PairValue>(lists);
+    }
+
 }

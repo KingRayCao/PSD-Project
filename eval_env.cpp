@@ -38,23 +38,27 @@ ValuePtr EvalEnv::eval(ValuePtr expr) {
     //List
     else {
         if (auto expr_pair = dynamic_cast<const PairValue*>(expr.get())) {
-            if (auto name = expr_pair->getCar()->asSymbol()) {
-                //Special Form
-                if (SPECIAL_FORMS.contains(*name)) {
-                    auto form = SPECIAL_FORMS.find(*name)->second;
-                    return form(expr_pair->getCdr()->toDeque(), *this);
+            if (expr_pair->isList()) {
+                if (auto name = expr_pair->getCar()->asSymbol()) {
+                    // Special Form
+                    if (SPECIAL_FORMS.contains(*name)) {
+                        auto form = SPECIAL_FORMS.find(*name)->second;
+                        return form(expr_pair->getCdr()->toDeque(), *this);
+                    }
+                    // Pure List
+                    else {
+                        ValuePtr proc = this->eval(expr_pair->getCar());
+                        return this->apply(proc,
+                                           this->evalList(expr_pair->getCdr()));
+                    }
                 } 
-                //Pure List
                 else {
-                    ValuePtr proc = this->eval(expr_pair->getCar());
-                    return this->apply(proc,
-                                       this->evalList(expr_pair->getCdr()));
+                    throw LispError("Can't evaluate the list");
                 }
-            } else {
-                throw LispError("Can't evaluate the pair.");
             }
-
-
+            else {
+                throw LispError("Can't evaluate a pair.");
+            }
         }
     }
 }

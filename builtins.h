@@ -12,4 +12,10 @@ ValuePtr newlineFunc(const std::deque<ValuePtr>& params);
 ValuePtr exitFunc(const std::deque<ValuePtr>& params);
 template <class F>
 BuiltinFuncType typeCheckFunc(F func);
+ValuePtr carFunc(const std::deque<ValuePtr>& params);
+ValuePtr cdrFunc(const std::deque<ValuePtr>& params);
+ValuePtr consFunc(const std::deque<ValuePtr>& params);
+ValuePtr lengthFunc(const std::deque<ValuePtr>& params);
+ValuePtr listFunc(const std::deque<ValuePtr>& params);
+ValuePtr appendFunc(const std::deque<ValuePtr>& params);
 #endif  // !BUILTINS_H

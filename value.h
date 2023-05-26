@@ -17,6 +17,7 @@ public:
     virtual bool isSelfEvaluating() const;
     virtual bool isNil() const;
     virtual bool isNumber() const;
+    virtual bool isList() const;
     virtual double asNumber() const;
     virtual std::deque < std::shared_ptr<Value>> toDeque() const;
     virtual std::optional<std::string> asSymbol() const;
@@ -79,10 +80,13 @@ private:
 
 public:
     PairValue(const ValuePtr& l, const ValuePtr& r) : left{l}, right{r} {};
+    PairValue(std::deque<ValuePtr> values);
     virtual string toString() const override;
     virtual std::deque<ValuePtr> toDeque() const override;
+    virtual bool isList() const override;
     ValuePtr getCar() const;
     ValuePtr getCdr() const;
+    
 };
 
 using BuiltinFuncType = std::function<ValuePtr(const std::deque<ValuePtr> &)>;

@@ -19,6 +19,9 @@ std::deque<ValuePtr> Value::toDeque() const {
 bool Value::isNumber() const {
     return false;
 }
+bool Value::isList() const {
+    return false;
+}
 double Value::asNumber() const {
     return 0;
 }
@@ -71,6 +74,19 @@ std::optional<std::string> SymbolValue::asSymbol() const {
     return {value};
 }
 
+PairValue::PairValue(std::deque<ValuePtr> values) {
+    if (values.size()==0)
+        throw LispError("Can't convert a NilValue into a Pair.");
+    right = std::make_shared<NilValue>();
+    left = values.back();
+    values.pop_back();
+    while (!values.empty()) {
+        right = std::make_shared<PairValue>(left, right);
+        left = values.back();
+        values.pop_back();
+    }
+
+}
 string PairValue::toString() const {
     string ret = "";
     ret += left->toString();
@@ -93,6 +109,14 @@ std::deque<ValuePtr> PairValue::toDeque() const {
     else
         return std::deque<ValuePtr>{left};
 
+}
+bool PairValue::isList() const {
+    if (typeid(*right) == typeid(PairValue))
+        return right->isList();
+    else if (typeid(*right) != typeid(NilValue))
+        return false;
+    else
+        return true;
 }
 ValuePtr PairValue::getCar() const {
     return left;
