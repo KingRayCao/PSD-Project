@@ -4,6 +4,7 @@
 #include <typeinfo>
 #include <sstream>
 #include "error.h"
+#include "eval_env.h"
 bool Value::isSelfEvaluating() const {
     return false;
 }
@@ -135,8 +136,9 @@ ValuePtr BuiltinProcValue::apply(const std::deque<ValuePtr>& args) {
 }
 
 LambdaValue::LambdaValue(const std::deque<ValuePtr>& _params,
-                         const std::deque<ValuePtr>& _body)
-    : body{_body} {
+                         const std::deque<ValuePtr>& _body,
+                         const std::shared_ptr<EvalEnv>& _env)
+    : body{_body}, env{_env} {
     for (auto& _param : _params) {
         if (auto param = _param->asSymbol()) 
             params.push_back(*param);
@@ -146,6 +148,16 @@ LambdaValue::LambdaValue(const std::deque<ValuePtr>& _params,
 }
 string LambdaValue::toString() const {
     return "#<procedure>";
+}
+ValuePtr LambdaValue::apply(const std::deque<ValuePtr>& args) {
+    auto lambda_env = env->createChild(params, args);
+
+    for (auto expr = body.begin(); expr != body.end(); ++expr) {
+        if (expr == body.end() - 1)
+            return lambda_env->eval(*expr);
+        else
+            lambda_env->eval(*expr);
+    }
 }
 
 std::ostream& operator<<(std::ostream& ost, Value& v) {

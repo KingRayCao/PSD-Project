@@ -52,6 +52,7 @@ const std::unordered_map<std::string, BuiltinFuncType> BUILTIN_FUNCS{
     {"length", lengthFunc},
     {"list", listFunc},
     {"append", appendFunc},
+    {">", ltFunc}
     };
 ValuePtr addFunc(const std::deque<ValuePtr>& params) {
     double result = 0;
@@ -213,4 +214,7 @@ ValuePtr appendFunc(const std::deque<ValuePtr>& params) {
         return std::make_shared<PairValue>(lists);
     }
 
+}
+ValuePtr ltFunc(const std::deque<ValuePtr>& params) {
+    return std::make_shared<BooleanValue>(params[0]->asNumber() > params[1]->asNumber());
 }

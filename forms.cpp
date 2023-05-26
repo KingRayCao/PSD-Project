@@ -9,15 +9,16 @@ const std::unordered_map<std::string, SpecialFormType> SPECIAL_FORMS{
     {"lambda", lambdaForm}};
 ValuePtr defineForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
     if (auto name = args[0]->asSymbol()) {
-        env.add(*name, env.eval(args[1]));
+        env.defineBinding(*name, env.eval(args[1]));
         return std::make_shared<NilValue>();
     }
     else {
         auto func = static_cast<PairValue&>(*args[0]);
         auto fname = func.getCar()->asSymbol();
         auto params = func.getCdr()->toDeque();
-        auto body = static_cast<PairValue&>(*args[1]).toDeque();
-        env.add(*fname, std::make_shared<LambdaValue>(params, body));
+        auto body = args;
+        body.pop_front();
+        env.defineBinding(*fname, std::make_shared<LambdaValue>(params, body, env.shared_from_this()));
         return std::make_shared<NilValue>();
     }
     throw LispError("Unimplemented");
@@ -63,6 +64,7 @@ ValuePtr orForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
 
 ValuePtr lambdaForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
     auto params = static_cast<PairValue&>(*args[0]).toDeque();
-    auto body = static_cast<PairValue&>(*args[1]).toDeque();
-    return std::make_shared<LambdaValue>(params, body);
+    auto body = args;
+    body.pop_front();
+    return std::make_shared<LambdaValue>(params, body, env.shared_from_this());
 }

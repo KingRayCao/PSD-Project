@@ -8,6 +8,7 @@
 #include <deque>
 #include <optional>
 #include <functional>
+
 using std::string;
 
 class Value {
@@ -100,15 +101,19 @@ public:
     ValuePtr apply(const std::deque<ValuePtr>& args);
 };
 
+class EvalEnv;
 class LambdaValue : public Value {
 private:
     std::deque<string> params{};
     std::deque<ValuePtr> body;
+    std::shared_ptr<EvalEnv> env;
 
 public:
     LambdaValue(const std::deque<ValuePtr>& _params,
-                const std::deque<ValuePtr>& _body);
+                const std::deque<ValuePtr>& _body,
+                const std::shared_ptr<EvalEnv>& _parent_env);
     virtual string toString() const override;
+    ValuePtr apply(const std::deque<ValuePtr>& args);
 };
 
 std::ostream& operator<<(std::ostream& ost, Value& v);

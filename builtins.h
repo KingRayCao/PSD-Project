@@ -18,4 +18,5 @@ ValuePtr consFunc(const std::deque<ValuePtr>& params);
 ValuePtr lengthFunc(const std::deque<ValuePtr>& params);
 ValuePtr listFunc(const std::deque<ValuePtr>& params);
 ValuePtr appendFunc(const std::deque<ValuePtr>& params);
+ValuePtr ltFunc(const std::deque<ValuePtr>& params);
 #endif  // !BUILTINS_H
