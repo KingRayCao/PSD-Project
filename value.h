@@ -7,6 +7,7 @@
 #include <iostream>
 #include <deque>
 #include <optional>
+#include <functional>
 using std::string;
 
 class Value {
@@ -29,6 +30,7 @@ public:
     explicit BooleanValue(const bool& v) : value{v} {};
     virtual string toString() const override;
     virtual bool isSelfEvaluating() const override;
+    bool getValue() const;
 };
 
 class NumericValue : public Value {
@@ -70,7 +72,6 @@ public:
     virtual std::optional<std::string> asSymbol() const override;
 };
 
-#include "eval_env.h"
 class PairValue : public Value {
 private:
     ValuePtr left;
@@ -80,18 +81,30 @@ public:
     PairValue(const ValuePtr& l, const ValuePtr& r) : left{l}, right{r} {};
     virtual string toString() const override;
     virtual std::deque<ValuePtr> toDeque() const override;
-    friend class EvalEnv;
+    ValuePtr getCar() const;
+    ValuePtr getCdr() const;
 };
 
-using BuiltinFuncType = ValuePtr(const std::deque<ValuePtr> &);
+using BuiltinFuncType = std::function<ValuePtr(const std::deque<ValuePtr> &)>;
 class BuiltinProcValue : public Value {
 private:
-    BuiltinFuncType* func{nullptr};
+    BuiltinFuncType func{};
 public:
-    BuiltinProcValue(BuiltinFuncType* f) : func{f} {};
+    BuiltinProcValue(BuiltinFuncType _func) : func{_func} {};
     virtual string toString() const override;
     virtual bool isSelfEvaluating() const override;
     ValuePtr apply(const std::deque<ValuePtr>& args);
+};
+
+class LambdaValue : public Value {
+private:
+    std::deque<string> params{};
+    std::deque<ValuePtr> body;
+
+public:
+    LambdaValue(const std::deque<ValuePtr>& _params,
+                const std::deque<ValuePtr>& _body);
+    virtual string toString() const override;
 };
 
 std::ostream& operator<<(std::ostream& ost, Value& v);

@@ -11,5 +11,6 @@ public:
     std::deque<ValuePtr> evalList(ValuePtr expr);
     ValuePtr apply(ValuePtr proc, std::deque<ValuePtr> args);
     ValuePtr eval(ValuePtr expr);
+    bool add(std::string, ValuePtr);
 };
 #endif

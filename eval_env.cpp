@@ -1,6 +1,7 @@
 #include "eval_env.h"
 #include "error.h"
 #include "builtins.h"
+#include "forms.h"
 #include <algorithm>
 #include <iterator>
 std::deque<ValuePtr> EvalEnv::evalList(ValuePtr expr) {
@@ -18,6 +19,7 @@ ValuePtr EvalEnv::apply(ValuePtr proc, std::deque<ValuePtr> args) {
 }
 
 ValuePtr EvalEnv::eval(ValuePtr expr) {
+    extern const std::unordered_map<std::string, SpecialFormType> SPECIAL_FORMS;
     //Self Evaluating
     if (expr->isSelfEvaluating()) {
         return expr;
@@ -35,42 +37,39 @@ ValuePtr EvalEnv::eval(ValuePtr expr) {
     } 
     //List
     else {
-        try {
-            auto vlist = expr->toDeque();
-            using namespace std::literals;
-            //Define
-            if (vlist[0]->asSymbol() == "define"s) {
-                if (auto name = vlist[1]->asSymbol()) {
-                    symbolTable[*name] = eval(vlist[2]);
-                    return std::make_shared<NilValue>();
-                } else {
-                    throw LispError("Malformed define.");
+        if (auto expr_pair = dynamic_cast<const PairValue*>(expr.get())) {
+            if (auto name = expr_pair->getCar()->asSymbol()) {
+                //Special Form
+                if (SPECIAL_FORMS.contains(*name)) {
+                    auto form = SPECIAL_FORMS.find(*name)->second;
+                    return form(expr_pair->getCdr()->toDeque(), *this);
+                } 
+                //Pure List
+                else {
+                    ValuePtr proc = this->eval(expr_pair->getCar());
+                    return this->apply(proc,
+                                       this->evalList(expr_pair->getCdr()));
                 }
-            } 
-            //TODO: Special Form
-
-            // Pure List
-            else {
-                ValuePtr proc = this->eval(vlist[0]);
-                if (auto expr_pair = dynamic_cast<const PairValue*>(expr.get())) {
-                    return this->apply(proc, this->evalList(expr_pair->right));
-                }
-
+            } else {
+                throw LispError("Can't evaluate the pair.");
             }
 
-        } catch (std::runtime_error& e) {
-            std::cerr << "Error: " << e.what() << std::endl;
+
         }
     }
 }
 
+bool EvalEnv::add(std::string name, ValuePtr value) {
+    symbolTable[name] = value;
+    return true;
+}
 
-//Add Builtin Procedure
+//Add Builtin Procedure and Form
 EvalEnv::EvalEnv() {
-    auto builtins = builtinFunc();
-    for (auto& func : builtins) {
+    extern const std::unordered_map<std::string, BuiltinFuncType> BUILTIN_FUNCS;
+    for (auto& func : BUILTIN_FUNCS) {
         symbolTable[func.first] =
             std::make_shared<BuiltinProcValue>(func.second);
     }
-    
 }
+

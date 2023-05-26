@@ -29,7 +29,9 @@ string BooleanValue::toString() const {
 bool BooleanValue::isSelfEvaluating() const {
     return true;
 }
-
+bool BooleanValue::getValue() const {
+    return value;
+}
 string NumericValue::toString() const {
     if (floor(value) == ceil(value))
         return std::to_string(int(value));
@@ -92,7 +94,12 @@ std::deque<ValuePtr> PairValue::toDeque() const {
         return std::deque<ValuePtr>{left};
 
 }
-
+ValuePtr PairValue::getCar() const {
+    return left;
+}
+ValuePtr PairValue::getCdr() const {
+    return right;
+}
 std::string BuiltinProcValue::toString() const {
     return "#<procedure>";
 }
@@ -101,6 +108,20 @@ bool BuiltinProcValue::isSelfEvaluating() const {
 }
 ValuePtr BuiltinProcValue::apply(const std::deque<ValuePtr>& args) {
     return func(args);
+}
+
+LambdaValue::LambdaValue(const std::deque<ValuePtr>& _params,
+                         const std::deque<ValuePtr>& _body)
+    : body{_body} {
+    for (auto& _param : _params) {
+        if (auto param = _param->asSymbol()) 
+            params.push_back(*param);
+        else
+            throw LispError("Unimplemented");
+    }
+}
+string LambdaValue::toString() const {
+    return "#<procedure>";
 }
 
 std::ostream& operator<<(std::ostream& ost, Value& v) {
