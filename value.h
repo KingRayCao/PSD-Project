@@ -66,6 +66,7 @@ public:
     NilValue(){};
     virtual string toString() const override;
     virtual bool isNil() const override;
+    virtual std::deque<std::shared_ptr<Value>> toDeque() const override;
     virtual bool operator==(const Value& v) const;
 };
 

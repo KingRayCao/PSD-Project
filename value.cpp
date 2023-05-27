@@ -93,6 +93,9 @@ bool NilValue::operator==(const Value& v) const {
         return true;
     return false;
 }
+std::deque<std::shared_ptr<Value>> NilValue::toDeque() const {
+    return {};
+}
 
 string SymbolValue::toString() const {
     return value;
@@ -183,13 +186,11 @@ string LambdaValue::toString() const {
 }
 ValuePtr LambdaValue::apply(const std::deque<ValuePtr>& args) {
     auto lambda_env = env->createChild(params, args);
-
-    for (auto expr = body.begin(); expr != body.end(); ++expr) {
-        if (expr == body.end() - 1)
-            return lambda_env->eval(*expr);
-        else
-            lambda_env->eval(*expr);
+    ValuePtr ret;
+    for (auto& expr: body) {
+        ret = lambda_env->eval(expr);
     }
+    return ret;
 }
 std::ostream& operator<<(std::ostream& ost, Value& v) {
     ost << v.toString();

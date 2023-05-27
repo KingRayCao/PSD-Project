@@ -109,14 +109,18 @@ ValuePtr consFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
 
 ValuePtr lengthFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 1, 1);
-    if (!params[0]->isList()) {
+    if (params[0]->isNil())
+        return std::make_shared<NumericValue>(0);
+    else if (!params[0]->isList()) {
         throw LispError("Cannot apply length to a non-list value.");
     } else {
         return std::make_shared<NumericValue>(params[0]->toDeque().size());
     }
 }
 ValuePtr listFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
-    checkParam(params, 1);
+    checkParam(params, 0);
+    if (params.size() == 0) 
+        return std::make_shared<NilValue>();
     return std::make_shared<PairValue>(params);
 }
 ValuePtr mapFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
@@ -176,7 +180,6 @@ ValuePtr reduceFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
 
 //算术运算库
 ValuePtr addFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
-    checkParam(params, 1);
     double result = 0;
     for (const auto& i : params) {
         result += i->asNumber();
@@ -195,7 +198,6 @@ ValuePtr minusFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     }
 }
 ValuePtr multiplyFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
-    checkParam(params, 1);
     double result = 1;
     for (const auto& i : params) {
         result *= i->asNumber();
@@ -292,13 +294,13 @@ ValuePtr equalFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
         else if (typeid(*x) == typeid(PairValue)) {
             auto x_pair = static_cast<const PairValue&>(*x);
             auto y_pair = static_cast<const PairValue&>(*y);
-            auto left_eq = equalFunc(
-                std::deque<ValuePtr>{x_pair.getCar(), y_pair.getCar()}, env);
-            auto right_eq = equalFunc(
-                std::deque<ValuePtr>{x_pair.getCdr(), y_pair.getCdr()}, env);
+            auto left_eq = equalFunc({x_pair.getCar(), y_pair.getCar()}, env);
+            auto right_eq = equalFunc({x_pair.getCdr(), y_pair.getCdr()}, env);
             return std::make_shared<BooleanValue>
                 (static_cast<BooleanValue&>(*left_eq).getValue() &&
                     static_cast<BooleanValue&>(*right_eq).getValue());
+        } else {
+            return std::make_shared<BooleanValue>(false);
         }
             
     }
@@ -341,13 +343,13 @@ ValuePtr evenFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 1, 1);
     double x = params[0]->asNumber();
     return std::make_shared<BooleanValue>(floor(x) == ceil(x) &&
-                                          int(x) % 2 == 0);
+                                          abs(int(x)) % 2 == 0);
 }
 ValuePtr oddFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 1, 1);
     double x = params[0]->asNumber();
     return std::make_shared<BooleanValue>(floor(x) == ceil(x) &&
-                                          int(x) % 2 == 1);
+                                          abs(int(x)) % 2 == 1);
 }
 ValuePtr zeroFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 1, 1);
