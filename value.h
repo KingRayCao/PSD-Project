@@ -22,6 +22,7 @@ public:
     virtual double asNumber() const;
     virtual std::deque < std::shared_ptr<Value>> toDeque() const;
     virtual std::optional<std::string> asSymbol() const;
+    virtual bool operator==(const Value& v) const;
 };
 using ValuePtr = std::shared_ptr<Value>;
 class BooleanValue : public Value {
@@ -33,6 +34,7 @@ public:
     virtual string toString() const override;
     virtual bool isSelfEvaluating() const override;
     bool getValue() const;
+    virtual bool operator==(const Value& v) const override;
 };
 
 class NumericValue : public Value {
@@ -45,6 +47,7 @@ public:
     virtual bool isSelfEvaluating() const override;
     virtual bool isNumber() const override;
     virtual double asNumber() const override;
+    virtual bool operator==(const Value& v) const override;
 };
 
 class StringValue : public Value {
@@ -55,6 +58,7 @@ public:
     explicit StringValue(const string& v) : value{v} {};
     virtual string toString() const override;
     virtual bool isSelfEvaluating() const override;
+    virtual bool operator==(const Value& v) const;
 };
 
 class NilValue : public Value {
@@ -62,6 +66,7 @@ public:
     NilValue(){};
     virtual string toString() const override;
     virtual bool isNil() const override;
+    virtual bool operator==(const Value& v) const;
 };
 
 class SymbolValue : public Value {
@@ -72,6 +77,7 @@ public:
     explicit SymbolValue(const string& v) : value{v} {};
     virtual string toString() const override;
     virtual std::optional<std::string> asSymbol() const override;
+    virtual bool operator==(const Value& v) const;
 };
 
 class PairValue : public Value {
@@ -89,8 +95,8 @@ public:
     ValuePtr getCdr() const;
     
 };
-
-using BuiltinFuncType = std::function<ValuePtr(const std::deque<ValuePtr> &)>;
+class EvalEnv;
+using BuiltinFuncType = std::function<ValuePtr(const std::deque<ValuePtr>&, EvalEnv&)>;
 class BuiltinProcValue : public Value {
 private:
     BuiltinFuncType func{};
@@ -98,10 +104,9 @@ public:
     BuiltinProcValue(BuiltinFuncType _func) : func{_func} {};
     virtual string toString() const override;
     virtual bool isSelfEvaluating() const override;
-    ValuePtr apply(const std::deque<ValuePtr>& args);
+    ValuePtr apply(const std::deque<ValuePtr>& args, EvalEnv& env);
 };
 
-class EvalEnv;
 class LambdaValue : public Value {
 private:
     std::deque<string> params{};

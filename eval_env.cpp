@@ -31,7 +31,7 @@ std::deque<ValuePtr> EvalEnv::evalList(ValuePtr expr) {
 }
 ValuePtr EvalEnv::apply(ValuePtr proc, std::deque<ValuePtr> args) {
     if (typeid(*proc) == typeid(BuiltinProcValue)) {
-        return static_cast<BuiltinProcValue&>(*proc).apply(args);
+        return static_cast<BuiltinProcValue&>(*proc).apply(args, *this);
     } 
     else if (typeid(*proc) == typeid(LambdaValue)) {
         return static_cast<LambdaValue&>(*proc).apply(args);
@@ -80,10 +80,9 @@ ValuePtr EvalEnv::eval(ValuePtr expr) {
                                         this->evalList(expr_pair->getCdr()));
                 }
             } 
-                
-        }
-        else {
-            throw LispError("Can't evaluate a pair.");
+            else {
+                throw LispError("Can't evaluate a pair.");
+            } 
         }
     }
 }
@@ -106,7 +105,6 @@ EvalEnv::EvalEnv(std::shared_ptr<EvalEnv> _parent) : parent{_parent} {
     } else {
         symbolTable = _parent->symbolTable;
     }
-
 }
 
 ValuePtr EvalEnv::lookupBinding(const string& name) {

@@ -15,6 +15,7 @@ std::optional<std::string> Value::asSymbol() const {
     return std::nullopt;
 }
 std::deque<ValuePtr> Value::toDeque() const {
+    throw LispError("Can't convert a non-pair value into a list.");
     return {};
 }
 bool Value::isNumber() const {
@@ -24,7 +25,11 @@ bool Value::isList() const {
     return false;
 }
 double Value::asNumber() const {
+    throw LispError("Can't convert a non-numeric value into a number.");
     return 0;
+}
+bool Value::operator==(const Value& v) const {
+    return false;
 }
 
 string BooleanValue::toString() const {
@@ -36,6 +41,12 @@ bool BooleanValue::isSelfEvaluating() const {
 bool BooleanValue::getValue() const {
     return value;
 }
+bool BooleanValue::operator==(const Value& v) const {
+    if (typeid(v) == typeid(BooleanValue))
+        return value == static_cast<const BooleanValue&>(v).value;
+    return false;
+}
+
 string NumericValue::toString() const {
     if (floor(value) == ceil(value))
         return std::to_string(int(value));
@@ -51,6 +62,11 @@ bool NumericValue::isNumber() const {
 double NumericValue::asNumber() const {
     return value;
 }
+bool NumericValue::operator==(const Value& v) const {
+    if (typeid(v) == typeid(NumericValue))
+        return value == static_cast<const NumericValue&>(v).value;
+    return false;
+}
 
 string StringValue::toString() const {
     std::stringstream ss;
@@ -60,6 +76,11 @@ string StringValue::toString() const {
 bool StringValue::isSelfEvaluating() const {
     return true;
 }
+bool StringValue::operator==(const Value& v) const {
+    if (typeid(v) == typeid(StringValue))
+        return value == static_cast<const StringValue&>(v).value;
+    return false;
+}
 
 string NilValue::toString() const {
     return "()";
@@ -67,12 +88,22 @@ string NilValue::toString() const {
 bool NilValue::isNil() const {
     return true;
 }
+bool NilValue::operator==(const Value& v) const {
+    if (typeid(v) == typeid(NilValue))
+        return true;
+    return false;
+}
 
 string SymbolValue::toString() const {
     return value;
 }
 std::optional<std::string> SymbolValue::asSymbol() const {
     return {value};
+}
+bool SymbolValue::operator==(const Value& v) const {
+    if (typeid(v) == typeid(SymbolValue))
+        return value == static_cast<const SymbolValue&>(v).value;
+    return false;
 }
 
 PairValue::PairValue(std::deque<ValuePtr> values) {
@@ -106,7 +137,7 @@ std::deque<ValuePtr> PairValue::toDeque() const {
         return ret;
     } 
     else if (typeid(*right) != typeid(NilValue))
-        throw(LispError("Convert to deque failed"));
+        throw(LispError("The pair is not a list."));
     else
         return std::deque<ValuePtr>{left};
 
@@ -125,14 +156,15 @@ ValuePtr PairValue::getCar() const {
 ValuePtr PairValue::getCdr() const {
     return right;
 }
+
 std::string BuiltinProcValue::toString() const {
     return "#<procedure>";
 }
 bool BuiltinProcValue::isSelfEvaluating() const {
     return true;
 }
-ValuePtr BuiltinProcValue::apply(const std::deque<ValuePtr>& args) {
-    return func(args);
+ValuePtr BuiltinProcValue::apply(const std::deque<ValuePtr>& args, EvalEnv& env) {
+    return func(args, env);
 }
 
 LambdaValue::LambdaValue(const std::deque<ValuePtr>& _params,
@@ -159,7 +191,6 @@ ValuePtr LambdaValue::apply(const std::deque<ValuePtr>& args) {
             lambda_env->eval(*expr);
     }
 }
-
 std::ostream& operator<<(std::ostream& ost, Value& v) {
     ost << v.toString();
     return ost;
