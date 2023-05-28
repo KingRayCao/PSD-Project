@@ -78,7 +78,7 @@ ValuePtr appendFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     else {
         std::deque<ValuePtr> lists{};
         for (auto& param : params)
-            if (param->isList()) {
+            if (param->isList() || param->isNil()) {
                 auto list = param->toDeque();
                 lists.insert(lists.end(), list.begin(), list.end());
             } else {

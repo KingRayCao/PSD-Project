@@ -13,7 +13,9 @@ const std::unordered_map<std::string, BuiltinFuncType> BUILTIN_FUNCS{
 
     //类型检查库
     {"atom?", typeCheckFunc([](ValuePtr v) {
-         return v->isSelfEvaluating() || typeid(*v) == typeid(NilValue) ||
+         return (v->isSelfEvaluating() &&
+                 typeid(*v) != typeid(BuiltinProcValue)) ||
+                typeid(*v) == typeid(NilValue) ||
                 typeid(*v) == typeid(SymbolValue);
      })},
     {"boolean?", typeCheckFunc([](ValuePtr v) {
@@ -24,7 +26,7 @@ const std::unordered_map<std::string, BuiltinFuncType> BUILTIN_FUNCS{
                 floor(v->asNumber()) == ceil(v->asNumber());
      })},
     {"list?", typeCheckFunc([](ValuePtr v) {
-         return typeid(*v) == typeid(PairValue) && v->isList();
+         return (typeid(*v) == typeid(PairValue) && v->isList()) || (v->isNil());
      })},
     {"number?", typeCheckFunc([](ValuePtr v) {
          return typeid(*v) == typeid(NumericValue);
