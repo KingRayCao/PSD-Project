@@ -143,6 +143,9 @@ ValuePtr quasiquoteForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
         for (auto& _arg : _args_deque) {
             res.push_back(quasiquoteForm({_arg}, env));
         }
-        return std::make_shared<PairValue>(res);
+        if (res.empty())
+            return std::make_shared<NilValue>();
+        else
+            return std::make_shared<PairValue>(res);
     }
 }

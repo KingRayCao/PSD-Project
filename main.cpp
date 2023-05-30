@@ -11,14 +11,18 @@ inline bool eq_s(const char* s1, const char* s2) {
 int main(int argc, char** argv) {
     auto env = EvalEnv::createGlobal();
     std::istream* ist{&std::cin};
-    std::ostream* ost{&std::cout};
-    if (argc == 5) {
-        if ((eq_s(argv[1], "--input") || eq_s(argv[1], "-i")) &&
-            (eq_s(argv[3], "--output") || eq_s(argv[3], "-o"))) {
-            ist = new std::ifstream(argv[2], std::ios::in);
-            ost = new std::ofstream(argv[4], std::ios::out);
+    std::ifstream ifs;
+    if (argc == 3) {
+        if ((eq_s(argv[1], "--input") || eq_s(argv[1], "-i"))) {
+            ifs.open(argv[2], std::ios::in);
+            if (!ifs.is_open()) {
+                std::cerr << "Error: Can't open the file '" << argv[2]
+                          << "'." << std::endl;
+                std::exit(1);
+            }
+            ist = &ifs;
         } else {
-            std::cerr << "Input Syntax Error." << std::endl;
+            std::cerr << "Error: Input Syntax Error." << std::endl;
             std::exit(1);
         }
     }
@@ -29,27 +33,24 @@ int main(int argc, char** argv) {
     while (true) {
         try {
             if (argc == 1)
-                *ost << ">>> " ;
+                std::cout << ">>> " ;
             std::string line;
-            std::getline(*ist, line);
-            if (std::cin.eof()) {
-                if (argc == 5) {
-                    delete ist;
-                    delete ost;
-                }
+            if (ist->eof()) {
                 std::exit(0);
             }
-            auto tokens = Tokenizer::tokenize(line);
-            Parser parser(std::move(tokens));
-            auto value = parser.parse();
-            auto result = env->eval(std::move(value));
-            *ost << result->toString() << std::endl;
+            std::getline(*ist, line);
+            if (!line.empty()) {
+                auto tokens = Tokenizer::tokenize(line);
+                Parser parser(std::move(tokens));
+                auto value = parser.parse();
+                auto result = env->eval(std::move(value));
+                if (argc == 1) std::cout << result->toString() << std::endl;
+            }
+
         } catch (std::runtime_error& e) {
             std::cerr << "Error: " << e.what() << std::endl;
-            if (argc == 5) {
-                delete ist;
-                delete ost;
-                std::exit(0);
+            if (argc != 1) {
+                std::exit(1);
             }
         }
     }

@@ -84,7 +84,10 @@ ValuePtr appendFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
             } else {
                 throw LispError("Cannot apply append to a non-list value.");
             }
-        return std::make_shared<PairValue>(lists);
+        if (lists.empty()) 
+            return std::make_shared<NilValue>();
+        else
+            return std::make_shared<PairValue>(lists);
     }
 }
 
@@ -121,7 +124,8 @@ ValuePtr listFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 0);
     if (params.size() == 0) 
         return std::make_shared<NilValue>();
-    return std::make_shared<PairValue>(params);
+    else
+        return std::make_shared<PairValue>(params);
 }
 ValuePtr mapFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 2);
@@ -144,7 +148,10 @@ ValuePtr mapFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
         }
         res.push_back(env.apply(proc, param));
     } 
-    return std::make_shared<PairValue>(res);
+    if (res.empty()) 
+        return std::make_shared<NilValue>();
+    else
+        return std::make_shared<PairValue>(res);
 }
 ValuePtr filterFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 2, 2);
@@ -158,7 +165,10 @@ ValuePtr filterFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
             res.push_back(param[0]);
         param.pop_front();
     }
-    return std::make_shared<PairValue>(res);
+    if (res.empty())
+        return std::make_shared<NilValue>();
+    else
+        return std::make_shared<PairValue>(res);
 }
 ValuePtr reduceFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 2, 2);
