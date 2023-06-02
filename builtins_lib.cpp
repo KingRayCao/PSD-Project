@@ -365,3 +365,11 @@ ValuePtr zeroFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 1, 1);
     return std::make_shared<BooleanValue>(params[0]->asNumber() == 0);
 }
+
+//彩蛋
+BuiltinFuncType easterEggFunc(std::string content) {
+    return [=](const std::deque<ValuePtr>& params, EvalEnv& env) {
+        checkParam(params, 0, 0);
+        return std::make_shared<StringValue>(content);
+    };
+}

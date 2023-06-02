@@ -37,7 +37,7 @@ ValuePtr EvalEnv::apply(ValuePtr proc, std::deque<ValuePtr> args) {
         return static_cast<LambdaValue&>(*proc).apply(args);
     }
     else {
-        throw LispError("Unimplemented");
+        throw LispError("Can't apply this.");
     }
 }
 

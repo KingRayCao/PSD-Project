@@ -59,4 +59,7 @@ BuiltinFunc gteFunc;
 BuiltinFunc evenFunc;
 BuiltinFunc oddFunc;
 BuiltinFunc zeroFunc;
+
+//彩蛋
+BuiltinFuncType easterEggFunc(std::string);
 #endif  // !BUILTINS_H

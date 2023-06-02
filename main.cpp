@@ -1,6 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <stack>
+#define TokenType Win32TokenType
+#include <windows.h>
+#undef TokenType
+#include "error.h"
 #include "tokenizer.h"
 #include "value.h"
 #include "parser.h"
@@ -9,6 +14,7 @@ inline bool eq_s(const char* s1, const char* s2) {
     return !strcmp(s1, s2);
 }
 int main(int argc, char** argv) {
+    SetConsoleOutputCP(CP_UTF8);
     auto env = EvalEnv::createGlobal();
     std::istream* ist{&std::cin};
     std::ifstream ifs;
@@ -30,26 +36,46 @@ int main(int argc, char** argv) {
         std::cerr << "Input Syntax Error." << std::endl;
         std::exit(1);
     }
+    std::stack<bool> checkBracket;
+    std::string input;
     while (true) {
         try {
-            if (argc == 1)
-                std::cout << ">>> " ;
             std::string line;
             if (ist->eof()) {
-                std::exit(0);
+                if (!checkBracket.empty()) {
+                    throw LispError("Mismatched Parentheses.");
+                }
+                else
+                    std::exit(0);
             }
+            if (argc == 1)
+                std::cout << ">>> ";
             std::getline(*ist, line);
-            if (!line.empty()) {
-                auto tokens = Tokenizer::tokenize(line);
-                Parser parser(std::move(tokens));
-                auto value = parser.parse();
-                auto result = env->eval(std::move(value));
-                if (argc == 1) std::cout << result->toString() << std::endl;
+            input += line;
+            if (!input.empty()) {
+                for (auto& c : line) {
+                    if (c == '(')
+                        checkBracket.push(true);
+                    else if (c == ')')
+                        checkBracket.pop();
+                }
+                if (checkBracket.empty()) {
+                    auto tokens = Tokenizer::tokenize(input);
+                    input = "";
+                    Parser parser(std::move(tokens));
+                    auto value = parser.parse();
+                    auto result = env->eval(std::move(value));
+                    if (argc == 1) {
+                        std::cout << result->toString() << std::endl;
+                    }
+                } else {
+                    input += " ";
+                }
             }
 
         } catch (std::runtime_error& e) {
             std::cerr << "Error: " << e.what() << std::endl;
-            if (argc != 1) {
+            if (argc != 1 || e.what() == "Mismatched Parentheses.") {
                 std::exit(1);
             }
         }
