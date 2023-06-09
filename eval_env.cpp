@@ -117,3 +117,7 @@ ValuePtr EvalEnv::lookupBinding(const string& name) {
     }
     throw LispError("Variable " + name + " not defined.");
 }
+
+bool EvalEnv::checkSymbol(const string& name) {
+    return symbolTable.contains(name);
+}

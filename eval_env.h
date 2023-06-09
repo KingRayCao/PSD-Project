@@ -15,5 +15,6 @@ public:
     ValuePtr apply(ValuePtr proc, std::deque<ValuePtr> args);
     ValuePtr eval(ValuePtr expr);
     bool defineBinding(string name, ValuePtr value);
+    bool checkSymbol(const string& name);
 };
 #endif
