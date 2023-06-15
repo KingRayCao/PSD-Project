@@ -42,6 +42,9 @@
     <ClCompile Include="builtins_lib.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="render.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="error.h">
@@ -69,6 +72,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="forms.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="render.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
