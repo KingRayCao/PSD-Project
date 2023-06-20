@@ -1,5 +1,6 @@
 #include "forms.h"
 #include "error.h"
+#include "builtins.h"
 const std::unordered_map<std::string, SpecialFormType> SPECIAL_FORMS{
     {"define", defineForm},
     {"quote", quoteForm},
@@ -13,6 +14,7 @@ const std::unordered_map<std::string, SpecialFormType> SPECIAL_FORMS{
     {"quasiquote", quasiquoteForm}
 };
 ValuePtr defineForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
+    checkParam(args, 2);
     if (auto name = args[0]->asSymbol()) {
         env.defineBinding(*name, env.eval(args[1]));
         return std::make_shared<NilValue>();
@@ -30,9 +32,11 @@ ValuePtr defineForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
 
 }
 ValuePtr quoteForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
+    checkParam(args, 1, 1);
     return args[0];
 }
 ValuePtr ifForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
+    checkParam(args, 3, 3);
     auto condition = env.eval(args[0]);
     if (typeid(*condition) == typeid(BooleanValue) &&
         static_cast<BooleanValue&>(*condition).getValue() == false) {
@@ -68,6 +72,7 @@ ValuePtr orForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
 }
 
 ValuePtr lambdaForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
+    checkParam(args, 2);
     auto params = static_cast<PairValue&>(*args[0]).toDeque();
     auto body = args;
     body.pop_front();
@@ -75,6 +80,7 @@ ValuePtr lambdaForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
 }
 
 ValuePtr condForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
+    checkParam(args, 1);
     ValuePtr ret;
     for (auto clause = args.begin(); clause != args.end(); ++clause) {
         if (auto symbol = static_cast<PairValue&>(**clause).getCar()->asSymbol()) {
@@ -107,6 +113,7 @@ ValuePtr condForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
     return ret;
 }
 ValuePtr beginForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
+    checkParam(args, 1);
     ValuePtr ret;
     for (auto& clause : args) {
         ret = env.eval(clause);
@@ -114,6 +121,7 @@ ValuePtr beginForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
     return ret;
 }
 ValuePtr letForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
+    checkParam(args, 2);
     auto bindings = args[0]->toDeque();
     std::deque<ValuePtr> params;
     std::deque<ValuePtr> values;
@@ -129,6 +137,7 @@ ValuePtr letForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
     return _lambda->apply(values);
 }
 ValuePtr quasiquoteForm(const std::deque<ValuePtr>& args, EvalEnv& env) {
+    checkParam(args, 1, 1);
     auto _args = args[0];
     if (!_args->isList()) 
         return _args;

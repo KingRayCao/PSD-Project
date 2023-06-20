@@ -5,7 +5,7 @@ extern const std::unordered_map<std::string, BuiltinFuncType> BUILTIN_FUNCS;
 
 using BuiltinFunc = ValuePtr(const std::deque<ValuePtr>&, EvalEnv&);
 // 工具函数
-bool checkParam(const std::deque<ValuePtr>&, int min_n, int max_n);
+bool checkParam(const std::deque<ValuePtr>&, int min_n, int max_n=-1);
 //核心库
 BuiltinFunc applyFunc;
 BuiltinFunc displayFunc;

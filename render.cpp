@@ -31,43 +31,46 @@ template <class T>
 void printTimes(const T& c, int n) {
     for (int i = 0; i < n; ++i) std::cout << c;
 }
-bool render(const std::string& out, std::shared_ptr<EvalEnv> env,
-            bool append) {  // append true为键入 false为删除
-    int i = out.length() - 1;
-    std::string last;
-    if (append) {
-        if (out[i] == '(' || out[i] == ')')
-            colorPrint(out[i], 4);
-        else if (out[i] == ' ')
-            std::cout << ' ';
-        else {
-            while (i >= 0 && out[i] != ' ' && out[i] != '(' && out[i] != ')') {
-                last = out[i] + last;
-                --i;
-            }
-            printTimes('\b', max(last.length() - 1, 0));
-            extern const std::unordered_map<std::string, SpecialFormType>
-                SPECIAL_FORMS;
-            if (env->checkSymbol(last) || SPECIAL_FORMS.contains(last))
-                colorPrint(last, 2);
-            else if (isNumber(last))
-                colorPrint(last, 6);
-            else
-                std::cout << last;
-        }
-    } else {
-        while (i >= 0 && out[i] != ' ' && out[i] != '(' && out[i] != ')') {
-            last = out[i] + last;
-            --i;
-        }
-        printTimes('\b', last.length() + 1);
-        if (env->checkSymbol(last) || SPECIAL_FORMS.contains(last))
-            colorPrint(last, 2);
-        else if (isNumber(last))
-            colorPrint(last, 6);
+void flushLine(int n) {
+    printTimes('\b', n);
+    printTimes(' ', n);
+    printTimes('\b', n);
+}
+void Render::printToken(const std::string& token) {
+    if (!token.empty())
+        if (env->checkSymbol(token) || SPECIAL_FORMS.contains(token))
+            colorPrint(token, 2);
+        else if (isNumber(token))
+            colorPrint(token, 1);
         else
-            std::cout << last;
-        std::cout << ' ' << '\b';
+            std::cout << token;
+}
+void Render::render(const std::string& rInput, const int& rTailLen) {
+    //flushLine
+    printTimes(' ', tailLen);
+    flushLine(input.length());
+    //render
+    std::string token{};
+    for (auto& c : rInput) {
+        if (c == '(' || c == ')' || c == ' ') {
+            printToken(token);
+            token = "";
+            if (c == ' ')
+                std::cout << c;
+            else
+                colorPrint(c, 4);
+        }
+        else {
+            token += c;
+        }
     }
-    return true;
+    printToken(token);
+    printTimes('\b', rTailLen);
+    //update
+    input = rInput;
+    tailLen = rTailLen;
+}
+void Render::erase() {
+    input = "";
+    tailLen = 0;
 }

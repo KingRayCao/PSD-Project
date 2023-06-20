@@ -1,7 +1,7 @@
 #include "builtins.h"
 #include "error.h"
 
-bool checkParam(const std::deque<ValuePtr>& params, int min_n, int max_n=-1) {
+bool checkParam(const std::deque<ValuePtr>& params, int min_n, int max_n) {
     if (params.size() >= min_n)
         if (max_n == -1 || params.size() <= max_n)
             return true;

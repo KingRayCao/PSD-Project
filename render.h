@@ -15,8 +15,17 @@ template <class T>
 void colorPrint(const T& c, int color = 7);
 template <class T>
 void printTimes(const T& c, int n = 1);
-bool render(const std::string& out, std::shared_ptr<EvalEnv> env,
-            bool append = true);
+void flushLine(int n);
+class Render {
+private:
+    std::shared_ptr<EvalEnv> env;
+    void printToken(const std::string& token);
 
-
+public:
+    std::string input{};
+    int tailLen{0};
+    Render(const std::shared_ptr<EvalEnv>& _env) : env{_env} {};
+    void render(const std::string& rInput, const int& rTailLen);
+    void erase();
+};
 #endif  // ! RENDER_H
