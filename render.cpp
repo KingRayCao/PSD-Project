@@ -70,7 +70,12 @@ void Render::render(const std::string& rInput, const int& rTailLen) {
     input = rInput;
     tailLen = rTailLen;
 }
-void Render::erase() {
+void Render::init() {
+    if (!input.empty()) {
+        history[history.size() - 1] = input;
+        history.push_back("");
+        historyPos = history.size() - 1;
+    }
     input = "";
     tailLen = 0;
 }

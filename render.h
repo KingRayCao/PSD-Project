@@ -23,9 +23,11 @@ private:
 
 public:
     std::string input{};
+    std::deque<std::string> history{""};
     int tailLen{0};
+    int historyPos{0};
     Render(const std::shared_ptr<EvalEnv>& _env) : env{_env} {};
     void render(const std::string& rInput, const int& rTailLen);
-    void erase();
+    void init();
 };
 #endif  // ! RENDER_H
