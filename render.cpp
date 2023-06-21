@@ -79,3 +79,16 @@ void Render::init() {
     input = "";
     tailLen = 0;
 }
+
+std::string Render::getInput() const {
+    return input;
+}
+int Render::getTailLen() const {
+    return tailLen;
+}
+std::string Render::getHistory() const {
+    return history[historyPos];
+}
+int Render::getHistoryLen() const {
+    return history.size();
+}

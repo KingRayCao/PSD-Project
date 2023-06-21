@@ -20,12 +20,17 @@ class Render {
 private:
     std::shared_ptr<EvalEnv> env;
     void printToken(const std::string& token);
-
-public:
     std::string input{};
     std::deque<std::string> history{""};
     int tailLen{0};
+    
+
+public:
     int historyPos{0};
+    std::string getInput() const;
+    int getTailLen() const;
+    std::string getHistory() const;
+    int getHistoryLen() const;
     Render(const std::shared_ptr<EvalEnv>& _env) : env{_env} {};
     void render(const std::string& rInput, const int& rTailLen);
     void init();

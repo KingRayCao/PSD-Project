@@ -55,10 +55,10 @@ int main(int argc, char** argv) {
             if (argc == 1){
                 char ch = _getch();
                 if (ch == 13) {//end of line
-                    render.render(render.input, 0);
+                    render.render(render.getInput(), 0);
                     std::cout << '\n';
-                    expr = expr + render.input + " ";
-                    for (auto& c : render.input) {
+                    expr = expr + render.getInput() + " ";
+                    for (auto& c : render.getInput()) {
                         if (c == '(')
                             checkBracket.push(true);
                         else if (c == ')')
@@ -80,30 +80,40 @@ int main(int argc, char** argv) {
                     }
                     render.init();
                 } else if (ch == '\b') {//backspace
-                    if (render.tailLen < render.input.length()) {
-                        int len0 = render.input.length() - render.tailLen - 1;
-                        render.render(render.input.substr(0, len0) +
-                                          render.input.substr(len0 + 1, render.tailLen),
-                                      render.tailLen);
+                    if (render.getTailLen() < render.getInput().length()) {
+                        auto input0 = render.getInput();
+                        int len0 = input0.length() - render.getTailLen() - 1;
+                        render.render(input0.substr(0, len0) +
+                                          input0.substr(len0 + 1, render.getTailLen()),
+                                      render.getTailLen());
                     }
                 } else if (int(ch) == 26) {// ctrl z
                     std::exit(0);
                 } else if (int(ch) == -32) {//arrow 75 left 77 right 72 up 80 down
                     ch = _getch();
-                    if (int(ch) == 75 && render.tailLen < render.input.length())
-                        render.render(render.input, render.tailLen + 1);
-                    if (int(ch) == 77 && render.tailLen > 0)
-                        render.render(render.input, render.tailLen - 1);
-                    if (int(ch) == 72 && render.historyPos > 0)
-                        render.render(render.history[--render.historyPos], 0);
-                    if (int(ch) == 80 && render.historyPos < render.history.size() - 1)
-                        render.render(render.history[++render.historyPos], 0);
+                    int tailLen0 = render.getTailLen();
+                    auto input0 = render.getInput();
+                    if (int(ch) == 75 && tailLen0 < input0.length())
+                        render.render(input0, tailLen0 + 1);
+                    if (int(ch) == 77 && tailLen0 > 0)
+                        render.render(input0, tailLen0 - 1);
+                    if (int(ch) == 72 && render.historyPos > 0) {
+                        --render.historyPos;
+                        render.render(render.getHistory(), 0);
+                    }
+                    if (int(ch) == 80 &&
+                        render.historyPos < render.getHistoryLen() - 1) {
+                        ++render.historyPos;
+                        render.render(render.getHistory(), 0);
+                    }
                 } else {
-                    int len0 = render.input.length() - render.tailLen;
-                    render.render(render.input.substr(0, len0) +
+                    auto input0 = render.getInput();
+                    int tailLen0 = render.getTailLen();
+                    int len0 = input0.length() - tailLen0;
+                    render.render(input0.substr(0, len0) +
                                       std::string{ch} +
-                                      render.input.substr(len0, render.tailLen),
-                                  render.tailLen);
+                                      input0.substr(len0,tailLen0),
+                                  tailLen0);
                 }
             }
             //file mode
