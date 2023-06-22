@@ -15,6 +15,7 @@ BuiltinFunc evalFunc;
 BuiltinFunc exitFunc;
 BuiltinFunc newlineFunc;
 BuiltinFunc printFunc;
+BuiltinFunc readlineFunc;
 
 // 类型检查库
 template <class F>
@@ -65,9 +66,6 @@ BuiltinFunc strcatFunc;
 BuiltinFunc strcmpFunc;
 BuiltinFunc stodFunc;
 BuiltinFunc substrFunc;
-
-//read
-BuiltinFunc readlineFunc;
 
 //彩蛋
 BuiltinFuncType easterEggFunc(std::string);

@@ -8,4 +8,6 @@
 			(list l0) 
 			(sort (filter (lambda (x) (> x l0)) l1)))))))
 
-(print (sort '(4 1 6 2 3 5)))
+(displayln "input list:")
+(define l (readline))
+(print (sort l))

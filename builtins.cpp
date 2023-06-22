@@ -10,6 +10,7 @@ const std::unordered_map<std::string, BuiltinFuncType> BUILTIN_FUNCS{
     {"exit", exitFunc}, 
     {"newline", newlineFunc},
     {"print", printFunc}, 
+    {"readline", readlineFunc},
 
     //类型检查库
     {"atom?", typeCheckFunc([](ValuePtr v) {
@@ -86,9 +87,6 @@ const std::unordered_map<std::string, BuiltinFuncType> BUILTIN_FUNCS{
     {"strcmp", strcmpFunc},
     {"stod", stodFunc},
     {"substr", substrFunc},
-    
-    //read
-    {"readline", readlineFunc},
 
     //彩蛋
     {"python", easterEggFunc("The Zen of Python, by Tim Peters\n\

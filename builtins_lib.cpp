@@ -20,20 +20,18 @@ ValuePtr applyFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
 ValuePtr displayFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 1, 1);
     auto v = params[0];
-    if (typeid(*v) == typeid(StringValue)) {
-        auto s = v->toString();
-        std::cout << s.substr(1, s.size() - 2);
-    } else
+    if (typeid(*v) == typeid(StringValue))
+        std::cout << v->asString();
+    else
         std::cout << v->toString();
     return std::make_shared<NilValue>();
 }
 ValuePtr displaylnFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 1, 1);
     auto v = params[0];
-    if (typeid(*v) == typeid(StringValue)) {
-        auto s = v->toString();
-        std::cout << s.substr(1, s.size() - 2);
-    } else
+    if (typeid(*v) == typeid(StringValue))
+        std::cout << v->asString();
+    else
         std::cout << v->toString();
     std::cout << std::endl;
     return std::make_shared<NilValue>();
@@ -68,6 +66,16 @@ ValuePtr printFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
         std::cout << v->toString() << std::endl;
     }
     return std::make_shared<NilValue>();
+}
+ValuePtr readlineFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
+    checkParam(params, 0, 0);
+    std::string input;
+    std::getline(std::cin, input);
+    auto tokens = Tokenizer::tokenize(input);
+    Parser parser(std::move(tokens));
+    auto value = parser.parse();
+    auto result = env.eval(std::move(value));
+    return result;
 }
 
 //类型检查库
@@ -392,18 +400,6 @@ ValuePtr substrFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 3, 3);
     return std::make_shared<StringValue>(params[0]->asString().substr(
         params[1]->asNumber(), params[2]->asNumber()));
-}
-
-//read
-ValuePtr readlineFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
-    checkParam(params,0, 0);
-    std::string input;
-    std::getline(std::cin, input);
-    auto tokens = Tokenizer::tokenize(input);
-    Parser parser(std::move(tokens));
-    auto value = parser.parse();
-    auto result = env.eval(std::move(value));
-    return result;
 }
 
 //彩蛋
