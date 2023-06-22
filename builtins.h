@@ -60,6 +60,15 @@ BuiltinFunc evenFunc;
 BuiltinFunc oddFunc;
 BuiltinFunc zeroFunc;
 
+//字符串处理
+BuiltinFunc strcatFunc;
+BuiltinFunc strcmpFunc;
+BuiltinFunc stodFunc;
+BuiltinFunc substrFunc;
+
+//read
+BuiltinFunc readlineFunc;
+
 //彩蛋
 BuiltinFuncType easterEggFunc(std::string);
 #endif  // !BUILTINS_H

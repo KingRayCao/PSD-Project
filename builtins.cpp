@@ -81,6 +81,15 @@ const std::unordered_map<std::string, BuiltinFuncType> BUILTIN_FUNCS{
     {"odd?", oddFunc},
     {"zero?", zeroFunc},
 
+    //字符串处理
+    {"strcat", strcatFunc},
+    {"strcmp", strcmpFunc},
+    {"stod", stodFunc},
+    {"substr", substrFunc},
+    
+    //read
+    {"readline", readlineFunc},
+
     //彩蛋
     {"python", easterEggFunc("The Zen of Python, by Tim Peters\n\
 Beautiful is better than ugly.\n\

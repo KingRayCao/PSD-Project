@@ -1,6 +1,7 @@
 #include "builtins.h"
 #include "error.h"
-
+#include "tokenizer.h"
+#include "parser.h"
 bool checkParam(const std::deque<ValuePtr>& params, int min_n, int max_n) {
     if (params.size() >= min_n)
         if (max_n == -1 || params.size() <= max_n)
@@ -364,6 +365,45 @@ ValuePtr oddFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
 ValuePtr zeroFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     checkParam(params, 1, 1);
     return std::make_shared<BooleanValue>(params[0]->asNumber() == 0);
+}
+
+//字符串处理
+ValuePtr strcatFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
+    checkParam(params, 1);
+    std::string ret{};
+    for (auto& p : params) {
+        if (typeid(*p) == typeid(StringValue))
+            ret += p->asString();
+        else
+            ret += p->toString();
+    }
+    return std::make_shared<StringValue>(ret);
+}
+ValuePtr strcmpFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
+    checkParam(params, 2, 2);
+    return std::make_shared<NumericValue>(
+        strcmp(params[0]->asString().c_str(), params[1]->asString().c_str()));
+}
+ValuePtr stodFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
+    checkParam(params, 1, 1);
+    return std::make_shared<NumericValue>(stod(params[0]->asString()));
+}
+ValuePtr substrFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
+    checkParam(params, 3, 3);
+    return std::make_shared<StringValue>(params[0]->asString().substr(
+        params[1]->asNumber(), params[2]->asNumber()));
+}
+
+//read
+ValuePtr readlineFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
+    checkParam(params,0, 0);
+    std::string input;
+    std::getline(std::cin, input);
+    auto tokens = Tokenizer::tokenize(input);
+    Parser parser(std::move(tokens));
+    auto value = parser.parse();
+    auto result = env.eval(std::move(value));
+    return result;
 }
 
 //彩蛋

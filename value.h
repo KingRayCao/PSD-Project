@@ -20,6 +20,7 @@ public:
     virtual bool isNumber() const;
     virtual bool isList() const;
     virtual double asNumber() const;
+    virtual std::string asString() const;
     virtual std::deque < std::shared_ptr<Value>> toDeque() const;
     virtual std::optional<std::string> asSymbol() const;
     virtual bool operator==(const Value& v) const;
@@ -59,6 +60,7 @@ public:
     virtual string toString() const override;
     virtual bool isSelfEvaluating() const override;
     virtual bool operator==(const Value& v) const;
+    virtual std::string asString() const override;
 };
 
 class NilValue : public Value {

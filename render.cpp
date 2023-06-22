@@ -42,6 +42,8 @@ void Render::printToken(const std::string& token) {
             colorPrint(token, 2);
         else if (isNumber(token))
             colorPrint(token, 1);
+        else if (token[0] == '"' && token[token.length() - 1] == '"' && token.length()>1)
+            colorPrint(token, 5);
         else
             std::cout << token;
 }
@@ -51,8 +53,16 @@ void Render::render(const std::string& rInput, const int& rTailLen) {
     flushLine(input.length());
     //render
     std::string token{};
+    bool hasQuotation{false};
     for (auto& c : rInput) {
-        if (c == '(' || c == ')' || c == ' ') {
+        if (c == '"') {
+            token += c;
+            if (hasQuotation) {
+                printToken(token);
+                token = "";
+            }
+            hasQuotation = !hasQuotation;
+        } else if (!hasQuotation && (c == '(' || c == ')' || c == ' ')) {
             printToken(token);
             token = "";
             if (c == ' ')

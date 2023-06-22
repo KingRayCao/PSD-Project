@@ -28,6 +28,10 @@ double Value::asNumber() const {
     throw LispError("Can't convert a non-numeric value into a number.");
     return 0;
 }
+std::string Value::asString() const {
+    throw LispError("Can't convert a non-string value into a string.");
+    return 0;
+}
 bool Value::operator==(const Value& v) const {
     return false;
 }
@@ -80,6 +84,9 @@ bool StringValue::operator==(const Value& v) const {
     if (typeid(v) == typeid(StringValue))
         return value == static_cast<const StringValue&>(v).value;
     return false;
+}
+std::string StringValue::asString() const {
+    return value;
 }
 
 string NilValue::toString() const {
