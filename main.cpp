@@ -16,16 +16,14 @@
 #include "eval_env.h"
 #include "forms.h"
 #include "render.h"
-inline bool eq_s(const char* s1, const char* s2) {
-    return !strcmp(s1, s2);
-}
+using namespace std::literals;
 int main(int argc, char** argv) {
     SetConsoleOutputCP(CP_UTF8);
     std::istream* ist{&std::cin};
     std::ifstream ifs;
     //check args and open file
     if (argc == 3) {
-        if ((eq_s(argv[1], "--input") || eq_s(argv[1], "-i"))) {
+        if ((argv[1] == "--input"s) || (argv[1]== "-i"s)) {
             ifs.open(argv[2], std::ios::in);
             if (!ifs.is_open()) {
                 std::cerr << "Error: Can't open the file '" << argv[2]

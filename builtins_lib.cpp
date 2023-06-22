@@ -74,8 +74,7 @@ ValuePtr readlineFunc(const std::deque<ValuePtr>& params, EvalEnv& env) {
     auto tokens = Tokenizer::tokenize(input);
     Parser parser(std::move(tokens));
     auto value = parser.parse();
-    auto result = env.eval(std::move(value));
-    return result;
+    return value;
 }
 
 //类型检查库
